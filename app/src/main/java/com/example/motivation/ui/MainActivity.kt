@@ -9,12 +9,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.motivation.infra.MotivationConstants
 import com.example.motivation.R
+import com.example.motivation.data.Mock
 import com.example.motivation.infra.SecurityPreferences
 import com.example.motivation.databinding.ActivityMainBinding
 import com.example.motivation.databinding.ActivityUserBinding
 
 private lateinit var binding: ActivityMainBinding
-private var categoryId = 1
+private var categoryId = MotivationConstants.FILTER.ALL_INCLUSIVE
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
@@ -43,10 +44,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         //seta a primeira imagem vir selecionada
         handleFilter(R.id.img_all_inclusive)
 
+        //exibe primeira frase
+        handleNextPhrase()
+
     }
 
     override fun onClick(v: View) {
         if (v.id == R.id.buttonNewPhrase) {
+            handleNextPhrase()
 
         } else if (v.id in listOf(
                 R.id.img_all_inclusive,
@@ -58,6 +63,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             handleFilter(v.id)
         }
 
+    }
+
+    private fun handleNextPhrase() {
+        val phrase = Mock().getPhrase(categoryId)
+        binding.textPhrase.text = phrase
     }
 
     private fun handleFilter(id: Int) {
