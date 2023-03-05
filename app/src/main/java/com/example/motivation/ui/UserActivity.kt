@@ -20,15 +20,19 @@ class UserActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(binding.root)
 
         supportActionBar?.hide()
-        
+
+        //Verifica se possui algum nome no sharedPreferences
+        //verifyUser()
+
+        binding.buttonSave.setOnClickListener(this)
+    }
+
+    private fun verifyUser() {
         //Verifica se possui name salvo no storage, caso tenha, exibe a mainActivity
         val name = SecurityPreferences(this).getString( MotivationConstants.KEY.USER_NAME)
         if(name !== ""){
             startActivity(Intent(this, MainActivity::class.java))
         }
-
-        binding.buttonSave.setOnClickListener(this)
-
     }
 
     override fun onClick(v: View) {
@@ -43,8 +47,8 @@ class UserActivity : AppCompatActivity(), View.OnClickListener {
 
             SecurityPreferences(this).storeString(MotivationConstants.KEY.USER_NAME, name)
 
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            //val intent = Intent(this, MainActivity::class.java)
+            //startActivity(intent)
             finish()
         } else {
             Toast.makeText(this, R.string.validation_mandatory_name, Toast.LENGTH_SHORT).show()

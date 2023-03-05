@@ -13,6 +13,7 @@ import com.example.motivation.data.Mock
 import com.example.motivation.infra.SecurityPreferences
 import com.example.motivation.databinding.ActivityMainBinding
 import com.example.motivation.databinding.ActivityUserBinding
+import java.util.Locale
 
 private lateinit var binding: ActivityMainBinding
 private var categoryId = MotivationConstants.FILTER.ALL_INCLUSIVE
@@ -28,27 +29,28 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         //esconde a barra de navegação
         supportActionBar?.hide()
 
-        //SharedPreferences (get)
-        val name = SecurityPreferences(this).getString(MotivationConstants.KEY.USER_NAME)
-        binding.textWelcome.text = "Olá $name!"
-
-        binding.buttonNewPhrase.setOnClickListener(this)
-
-
         //Eventos das imagens
         binding.imgAllInclusive.setOnClickListener(this)
         binding.imgHappy.setOnClickListener(this)
         binding.imgSunny.setOnClickListener(this)
-        binding.imgExitToApp.setOnClickListener(this)
+
+        binding.buttonNewPhrase.setOnClickListener(this)
+
+        //Clique no nome para voltar a tela de User
+        binding.textWelcome.setOnClickListener(this)
 
         //seta a primeira imagem vir selecionada
         handleFilter(R.id.img_all_inclusive)
 
         //exibe primeira frase
         handleNextPhrase()
-
     }
 
+    override fun onStart() {
+        super.onStart()
+        //Busca o nome do usuario
+        showUserName()
+    }
     override fun onClick(v: View) {
         if (v.id == R.id.buttonNewPhrase) {
             handleNextPhrase()
@@ -57,24 +59,34 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 R.id.img_all_inclusive,
                 R.id.img_happy,
                 R.id.img_sunny,
-                R.id.img_exit_to_app
             )
         ) {
             handleFilter(v.id)
+        }else if(v.id == R.id.text_welcome){
+            startActivity(Intent(this, UserActivity::class.java))
         }
 
     }
 
+    private fun showUserName() {
+        //SharedPreferences (get)
+        val name = SecurityPreferences(this).getString(MotivationConstants.KEY.USER_NAME)
+        val hello = getString(R.string.hello)
+        binding.textWelcome.text = "${hello} $name!"
+    }
+
     private fun handleNextPhrase() {
-        val phrase = Mock().getPhrase(categoryId)
-        binding.textPhrase.text = phrase
+        val phrase = Mock().getPhrase(categoryId, Locale.getDefault().language)
+        binding.textPhrase.text = phrase.description
+        val category = getString(phrase.categoryId)
+        binding.categoryPhrase.text = category
+
     }
 
     private fun handleFilter(id: Int) {
         binding.imgAllInclusive.setColorFilter(ContextCompat.getColor(this, R.color.img_background))
         binding.imgHappy.setColorFilter(ContextCompat.getColor(this, R.color.img_background))
         binding.imgSunny.setColorFilter(ContextCompat.getColor(this, R.color.img_background))
-        binding.imgExitToApp.setColorFilter(ContextCompat.getColor(this, R.color.img_background))
 
         when (id) {
             R.id.img_all_inclusive -> {
@@ -85,6 +97,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     )
                 )
                 categoryId = MotivationConstants.FILTER.ALL_INCLUSIVE
+                handleNextPhrase()
             }
             R.id.img_happy -> {
                 binding.imgHappy.setColorFilter(
@@ -94,6 +107,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     )
                 )
                 categoryId = MotivationConstants.FILTER.HAPPY
+                handleNextPhrase()
             }
             R.id.img_sunny -> {
                 binding.imgSunny.setColorFilter(
@@ -103,16 +117,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     )
                 )
                 categoryId = MotivationConstants.FILTER.SUNNY
+                handleNextPhrase()
             }
-            R.id.img_exit_to_app -> {
-                binding.imgExitToApp.setColorFilter(
-                    ContextCompat.getColor(
-                        this,
-                        R.color.white
-                    )
-                )
-                handleSignOut() //EFETUAR LOGOFF
-            }
+
         }
 
     }
